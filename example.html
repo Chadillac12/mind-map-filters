@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Map Filters Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input, select {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .node {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .node-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .tag {
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .date {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .children {
+            margin-left: 20px;
+            padding-left: 15px;
+            border-left: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mind Map Filters Example</h1>
+    
+    <div class="controls">
+        <div>
+            <label for="text-filter">Filter by text:</label>
+            <input type="text" id="text-filter" placeholder="Enter text">
+            
+            <label for="tag-filter">Filter by tag:</label>
+            <select id="tag-filter">
+                <option value="">Select tag</option>
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+                <option value="important">Important</option>
+                <option value="todo">Todo</option>
+                <option value="inprogress">In Progress</option>
+                <option value="phase1">Phase 1</option>
+                <option value="learning">Learning</option>
+                <option value="health">Health</option>
+            </select>
+            
+            <button id="apply-filters">Apply Filters</button>
+            <button id="clear-filters">Clear Filters</button>
+        </div>
+        <div id="active-filters" style="margin-top: 10px;">
+            <strong>Active filters:</strong> None
+        </div>
+    </div>
+    
+    <div id="mind-map-container"></div>
+
+    <!-- Include the Mind Map Filters library -->
+    <script src="mindMapFilters.js"></script>
+    
+    <script>
+        // Sample mind map data
+        const mindMapData = [
+            {
+                id: 1,
+                text: "Project Planning",
+                tags: ["work", "important"],
+                createdAt: "2025-03-15T10:30:00Z",
+                children: [
+                    {
+                        id: 2,
+                        text: "Define Requirements",
+                        tags: ["todo", "phase1"],
+                        createdAt: "2025-03-16T14:20:00Z"
+                    },
+                    {
+                        id: 3,
+                        text: "Create Timeline",
+                        tags: ["todo", "phase1"],
+                        createdAt: "2025-03-17T09:45:00Z"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                text: "Personal Goals",
+                tags: ["personal", "important"],
+                createdAt: "2025-03-10T08:15:00Z",
+                children: [
+                    {
+                        id: 5,
+                        text: "Learn JavaScript",
+                        tags: ["learning", "inprogress"],
+                        createdAt: "2025-03-11T16:30:00Z"
+                    },
+                    {
+                        id: 6,
+                        text: "Exercise Routine",
+                        tags: ["health", "todo"],
+                        createdAt: "2025-03-12T07:00:00Z"
+                    }
+                ]
+            },
+            {
+                id: 7,
+                text: "Shopping List",
+                tags: ["personal", "todo"],
+                createdAt: "2025-03-20T18:30:00Z",
+                children: []
+            }
+        ];
+
+        // Create a new MindMapFilters instance
+        const filters = new MindMapFilters(mindMapData);
+        let activeFilters = [];
+
+        // DOM elements
+        const container = document.getElementById('mind-map-container');
+        const textFilterInput = document.getElementById('text-filter');
+        const tagFilterSelect = document.getElementById('tag-filter');
+        const applyFiltersButton = document.getElementById('apply-filters');
+        const clearFiltersButton = document.getElementById('clear-filters');
+        const activeFiltersElement = document.getElementById('active-filters');
+
+        // Render function for mind map nodes
+        function renderMindMap(nodes) {
+            container.innerHTML = '';
+            
+            nodes.forEach(node => {
+                const nodeElement = document.createElement('div');
+                nodeElement.className = 'node';
+                
+                const nodeTitle = document.createElement('div');
+                nodeTitle.className = 'node-title';
+                nodeTitle.textContent = node.text;
+                nodeElement.appendChild(nodeTitle);
+                
+                // Tags
+                if (node.tags && node.tags.length > 0) {
+                    const tagsContainer = document.createElement('div');
+                    tagsContainer.className = 'tags';
+                    
+                    node.tags.forEach(tag => {
+                        const tagElement = document.createElement('span');
+                        tagElement.className = 'tag';
+                        tagElement.textContent = tag;
+                        tagsContainer.appendChild(tagElement);
+                    });
+                    
+                    nodeElement.appendChild(tagsContainer);
+                }
+                
+                // Date
+                if (node.createdAt) {
+                    const dateElement = document.createElement('div');
+                    dateElement.className = 'date';
+                    const date = new Date(node.createdAt);
+                    dateElement.textContent = `Created: ${date.toLocaleDateString()}`;
+                    nodeElement.appendChild(dateElement);
+                }
+                
+                container.appendChild(nodeElement);
+                
+                // Children
+                if (node.children && node.children.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'children';
+                    nodeElement.appendChild(childrenContainer);
+                    
+                    node.children.forEach(child => {
+                        const childElement = document.createElement('div');
+                        childElement.className = 'node';
+                        
+                        const childTitle = document.createElement('div');
+                        childTitle.className = 'node-title';
+                        childTitle.textContent = child.text;
+                        childElement.appendChild(childTitle);
+                        
+                        // Child tags
+                        if (child.tags && child.tags.length > 0) {
+                            const childTagsContainer = document.createElement('div');
+                            childTagsContainer.className = 'tags';
+                            
+                            child.tags.forEach(tag => {
+                                const tagElement = document.createElement('span');
+                                tagElement.className = 'tag';
+                                tagElement.textContent = tag;
+                                childTagsContainer.appendChild(tagElement);
+                            });
+                            
+                            childElement.appendChild(childTagsContainer);
+                        }
+                        
+                        // Child date
+                        if (child.createdAt) {
+                            const dateElement = document.createElement('div');
+                            dateElement.className = 'date';
+                            const date = new Date(child.createdAt);
+                            dateElement.textContent = `Created: ${date.toLocaleDateString()}`;
+                            childElement.appendChild(dateElement);
+                        }
+                        
+                        childrenContainer.appendChild(childElement);
+                    });
+                }
+            });
+        }
+
+        // Apply filters
+        applyFiltersButton.addEventListener('click', () => {
+            const textFilter = textFilterInput.value.trim();
+            const tagFilter = tagFilterSelect.value;
+            
+            filters.clearFilters();
+            activeFilters = [];
+            
+            if (textFilter) {
+                filters.filterByText(textFilter);
+                activeFilters.push(`Text: "${textFilter}"`);
+            }
+            
+            if (tagFilter) {
+                filters.filterByTags(tagFilter);
+                activeFilters.push(`Tag: "${tagFilter}"`);
+            }
+            
+            // Update active filters display
+            if (activeFilters.length > 0) {
+                activeFiltersElement.innerHTML = '<strong>Active filters:</strong> ' + activeFilters.join(', ');
+            } else {
+                activeFiltersElement.innerHTML = '<strong>Active filters:</strong> None';
+            }
+            
+            // Apply filters and render
+            const filteredData = filters.applyFilters();
+            renderMindMap(filteredData);
+        });
+
+        // Clear filters
+        clearFiltersButton.addEventListener('click', () => {
+            textFilterInput.value = '';
+            tagFilterSelect.value = '';
+            filters.clearFilters();
+            activeFilters = [];
+            activeFiltersElement.innerHTML = '<strong>Active filters:</strong> None';
+            renderMindMap(mindMapData);
+        });
+
+        // Initial render
+        renderMindMap(mindMapData);
+    </script>
+</body>
+</html>
