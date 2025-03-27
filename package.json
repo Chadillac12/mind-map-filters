@@ -1,0 +1,25 @@
+{
+  "name": "mind-map-filters",
+  "version": "1.0.0",
+  "description": "A JavaScript library for filtering mind map data",
+  "main": "mindMapFilters.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mind-map",
+    "filter",
+    "javascript",
+    "data-filtering"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chadillac12/mind-map-filters.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Chadillac12/mind-map-filters/issues"
+  },
+  "homepage": "https://github.com/Chadillac12/mind-map-filters#readme"
+}
